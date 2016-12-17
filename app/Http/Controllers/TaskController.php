@@ -25,7 +25,24 @@ class TaskController extends Controller
 			$res['result']  = $tasks;
 		} else {
 			$res['success'] = true;
-			$res['result']  = 'No task created.';
+			$res['result']  = 'Task empty.';
+		}
+		return response($res);
+	}
+
+	/**
+	 * get task detail
+	 */
+	public function detail(Request $request, $id)
+	{
+		$tasks = Task::find($id);
+
+		if (count($tasks) !== 0) {
+			$res['success'] = true;
+			$res['result']  = $tasks;
+		} else {
+			$res['success'] = true;
+			$res['result']  = 'Task not found!';
 		}
 		return response($res);
 	}
@@ -41,13 +58,19 @@ class TaskController extends Controller
 			$res['result']  = $tasks;
 		} else {
 			$res['success'] = true;
-			$res['result']  = 'No task created.';
+			$res['result']  = 'Task empty.';
 		}
 		return response($res);
 	}
 
 	public function create(Request $request)
 	{
+		// Validating data
+		$this->validate($request, [
+			'title'		  => 'required',
+			'description' => 'required'
+		]);
+
 		$task = new Task();
 		$task->fill([
 			'user_id'		=> $this->user_id,
@@ -67,6 +90,13 @@ class TaskController extends Controller
 
 	public function update(Request $request, $id)
 	{
+		// Validating data
+		$this->validate($request, [
+			'title'			=> 'required',
+			'description'	=> 'required',
+			'status'		=> 'required|in:todo,doing,done'
+		]);
+
 		$task = Task::find($id);
 
 		$task->title = $request->input('title');
@@ -85,13 +115,19 @@ class TaskController extends Controller
 	public function delete(Request $request, $id)
 	{
 		$task = Task::find($id);
-		if ($task->delete()) {
-			$res['success'] = true;
-			$res['message'] = 'Task deleted.';
+		
+		if (count($task) == 0) {
+			return response()->setStatusCode(404, 'The task not found!');
 		} else {
-			$res['success'] = false;
-			$res['message'] = 'Failed deleting task!';
+			if ($task->delete()) {
+				$res['success'] = true;
+				$res['message'] = 'Task deleted.';
+			} else {
+				$res['success'] = false;
+				$res['message'] = 'Failed deleting task!';
+			}
+			return response($res);
 		}
-		return response($res);
+
 	}
 }

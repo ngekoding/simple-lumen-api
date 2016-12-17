@@ -14,6 +14,12 @@ class LoginController extends Controller
 	 */
 	public function index(Request $request)
 	{
+		// Validation data
+		$this->validate($request, [
+			'email' 	=> 'required|email',
+			'password' 	=> 'required'
+		]);
+
 		$hasher = app()->make('hash');
 
 		$email		= $request->input('email');

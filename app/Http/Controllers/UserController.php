@@ -14,6 +14,13 @@ class UserController extends Controller
 	 */
 	public function register(Request $request)
 	{
+		// Validating data
+		$this->validate($request, [
+			'username' 	=> 'required|unique:users',
+			'email'		=> 'required|email|unique:users',
+			'password'	=> 'required'
+		]);
+
 		$hasher = app()->make('hash');
 
 		$username = $request->input('username');

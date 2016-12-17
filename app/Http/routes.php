@@ -21,6 +21,7 @@ $app->group(['middleware' => 'auth'], function() use ($app) {
 	$app->get('/user/{id}', 'UserController@getUser');
 	
 	$app->get('/tasks', 'TaskController@index');
+	$app->get('/tasks/detail/{id}', 'TaskController@detail');
 	$app->get('/tasks/{status}', 'TaskController@get');
 	$app->post('/tasks', 'TaskController@create');
 	$app->put('/tasks/{id}', 'TaskController@update');
