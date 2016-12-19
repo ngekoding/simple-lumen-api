@@ -88,6 +88,17 @@
 								</td>
 							</tr>
 							<tr>
+								<td>/tasks/detail/{id}</td>
+								<td>GET</td>
+								<td>
+									<p>Get task detail.</p>
+									<p><code>{id}</code> Task ID.</p>
+									<p><code>response:</code> <span class="label label-default">JSON</span> success (true/false).</p>
+									<p>If not empty, you will get <code>result</code> of array (id, user_id, title, description, status, etc).</p>
+									<p><span class="label label-warning">api_token</span> required.</p>
+								</td>
+							</tr>
+							<tr>
 								<td>/tasks/{status}</td>
 								<td>GET</td>
 								<td>

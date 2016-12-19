@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Validator;
 use App\User;
 
 class UserController extends Controller
@@ -15,11 +16,17 @@ class UserController extends Controller
 	public function register(Request $request)
 	{
 		// Validating data
-		$this->validate($request, [
+		$validator = Validator::make($request->all(), [
 			'username' 	=> 'required|unique:users',
 			'email'		=> 'required|email|unique:users',
 			'password'	=> 'required'
 		]);
+
+		if ($validator->fails()) {
+			$res['success'] = false;
+			$res['message'] = $validator->messages();
+			return response($res);
+		}
 
 		$hasher = app()->make('hash');
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Validator;
 use App\User;
 
 class LoginController extends Controller
@@ -14,11 +15,17 @@ class LoginController extends Controller
 	 */
 	public function index(Request $request)
 	{
-		// Validation data
-		$this->validate($request, [
-			'email' 	=> 'required|email',
-			'password' 	=> 'required'
+		// Validating data
+		$validator = Validator::make($request->all(), [
+			'email'		=> 'required|email',
+			'password'	=> 'required'
 		]);
+
+		if ($validator->fails()) {
+			$res['success'] = false;
+			$res['message'] = $validator->messages();
+			return response($res);
+		}
 
 		$hasher = app()->make('hash');
 
@@ -28,7 +35,7 @@ class LoginController extends Controller
 		$login = User::where('email', $email)->first();
 		if (!$login) {
 			$res['success'] = false;
-			$res['message'] = 'Your email or password incorrect!';
+			$res['message'] = 'Incorrect username or password!';
 		} else {
 			if ($hasher->check($password, $login->password)) {
 				$api_token = sha1(time());
@@ -39,8 +46,8 @@ class LoginController extends Controller
 					$res['message'] = $login;
 				}
 			} else {
-				$res['success'] = true;
-				$res['message'] = 'Your email or password incorrect!';
+				$res['success'] = false;
+				$res['message'] = 'Incorrect username or password!';
 			}
 		}
 		return response($res);

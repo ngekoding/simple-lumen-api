@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Validator;
 use App\Task;
 
 class TaskController extends Controller
@@ -41,7 +42,7 @@ class TaskController extends Controller
 			$res['success'] = true;
 			$res['result']  = $tasks;
 		} else {
-			$res['success'] = true;
+			$res['success'] = false;
 			$res['result']  = 'Task not found!';
 		}
 		return response($res);
@@ -66,10 +67,16 @@ class TaskController extends Controller
 	public function create(Request $request)
 	{
 		// Validating data
-		$this->validate($request, [
-			'title'		  => 'required',
-			'description' => 'required'
+		$validator = Validator::make($request->all(), [
+			'title' => 'required',
+			'description' => 'required',
 		]);
+
+		if ($validator->fails()) {
+			$res['success'] = false;
+			$res['message'] = $validator->messages();
+			return response($res);
+		}
 
 		$task = new Task();
 		$task->fill([
@@ -91,11 +98,17 @@ class TaskController extends Controller
 	public function update(Request $request, $id)
 	{
 		// Validating data
-		$this->validate($request, [
+		$validator = Validator::make($request->all(), [
 			'title'			=> 'required',
 			'description'	=> 'required',
 			'status'		=> 'required|in:todo,doing,done'
 		]);
+
+		if ($validator->fails()) {
+			$res['success'] = false;
+			$res['message'] = $validator->messages();
+			return response($res);
+		}
 
 		$task = Task::find($id);
 
@@ -116,18 +129,14 @@ class TaskController extends Controller
 	{
 		$task = Task::find($id);
 		
-		if (count($task) == 0) {
-			return response()->setStatusCode(404, 'The task not found!');
+		if ($task->delete()) {
+			$res['success'] = true;
+			$res['message'] = 'Task deleted.';
 		} else {
-			if ($task->delete()) {
-				$res['success'] = true;
-				$res['message'] = 'Task deleted.';
-			} else {
-				$res['success'] = false;
-				$res['message'] = 'Failed deleting task!';
-			}
-			return response($res);
+			$res['success'] = false;
+			$res['message'] = 'Failed deleting task!';
 		}
+		return response($res);
 
 	}
 }
